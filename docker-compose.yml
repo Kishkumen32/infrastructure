@@ -1,12 +1,12 @@
 version: '3'
 
 services:
-  postgres_image:
+  postgres_db:
     image: postgres:latest
     ports:
       - "5432:5432"
     networks:
-      - identityserver-dev
+      - dev
     restart: always
     volumes:
       - db_volume:/var/lib/postgresql/data
@@ -15,41 +15,23 @@ services:
       POSTGRES_PASSWORD: "postgres"
       POSTGRES_DB: "is4admin"
 
-  identityserver:
-    image: identityserver:latest
-    depends_on:
-      - "postgres_image"
+  redis_db:
     build:
-      context: ./src/IdentityServer/
-      dockerfile: Dockerfile
-    volumes:
-      - dataprotection_volume:/etc/keys
-    ports:
-      - "5000:5000"
-    environment:
-      ASPNETCORE_ENVIRONMENT: Production
-      ASPNETCORE_URLS: http://*.:5000
-    networks:
-      - identityserver-dev
-      
-  proxy:
-    build:
-        context:  ./src/nginx
+        context: src/redis_db
         dockerfile: Dockerfile
-    depends_on:
-        - identityserver
+    image: ctr/redis
     ports:
-        - "80:80"
-        - "443:443"
+      - "6379:6379"
     networks:
-      - identityserver-dev
-    links:
-        - identityserver
+      - dev
+    restart: always
+    volumes:
+      - redis_volume:/data
 
 volumes:
   db_volume:
-  dataprotection_volume:
+  redis_volume:
 
 networks:
-  identityserver-dev:
+  dev:
     driver: bridge
