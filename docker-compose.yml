@@ -13,7 +13,18 @@ services:
     environment:
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "postgres"
-      POSTGRES_DB: "is4admin"
+      POSTGRES_DB: "ctr"
+
+  postgres_gui:
+    image: dpage/pgadmin4
+    ports:
+      - "80:80"
+    networks:
+      - dev
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "msadler@gmail.com"
+      PGADMIN_DEFAULT_PASSWORD: "trustno1"
 
   redis_db:
     build:
